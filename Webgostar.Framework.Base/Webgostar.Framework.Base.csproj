@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Title>Taraz WebGostar Framework Base</Title>
+		<PackageId>TarazWebGostar.Framework.Base</PackageId>
+		<Product>TarazWebGostar.Framework.Base</Product>
+		<PackageTags>Framework Base</PackageTags>
+		<Description>Base Framework For Taraz WebGostar</Description>
+		<Authors>Taraz WebGostar Team</Authors>
+		<PackageIcon>Framework.png</PackageIcon>
+		<Version>1.0.1</Version>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Mapster" Version="7.4.0" />
+		<PackageReference Include="MediatR" Version="12.5.0" />
+	</ItemGroup>
+
+</Project>

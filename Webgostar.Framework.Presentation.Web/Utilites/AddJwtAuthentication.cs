@@ -12,25 +12,27 @@ namespace Webgostar.Framework.Presentation.Web.Utilites
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(options =>
-           {
-               options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
-               options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-               options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-           }).AddJwtBearer(cfg =>
-           {
-               cfg.RequireHttpsMetadata = false;
-               cfg.SaveToken = true;
-               cfg.TokenValidationParameters = new TokenValidationParameters
-               {
-                   IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtConfig:SignInKey"] ?? string.Empty)),
-                   ValidIssuer = configuration["JwtConfig:Issuer"],
-                   ValidAudience = configuration["JwtConfig:Audience"],
-                   ValidateIssuerSigningKey = true,
-                   ValidateLifetime = true,
-                   ValidateAudience = true,
-                   ValidateIssuer = true
-               };
-           });
+            {
+                options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.Authority = configuration["WebServiceUrl:SSOUrl"];
+                options.Audience = "api1.read";
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtConfig:SignInKey"] ?? string.Empty)),
+                    ValidIssuer = configuration["JwtConfig:Issuer"],
+                    ValidAudience = configuration["JwtConfig:Audience"],
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ValidateAudience = true,
+                    ValidateIssuer = true
+                };
+            });
 
             services.AddAuthorization(options =>
             {

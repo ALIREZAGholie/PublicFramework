@@ -49,6 +49,7 @@ public static class SwaggerConfig
                     }
                 }, []
             }});
+            c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "WebApi.xml"));
         });
 
         return services;

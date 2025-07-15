@@ -8,7 +8,7 @@
 		<PackageTags>Framework Domain</PackageTags>
 		<Description>Domain Framework For Taraz WebGostar</Description>
 		<Authors>Taraz WebGostar Team</Authors>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>

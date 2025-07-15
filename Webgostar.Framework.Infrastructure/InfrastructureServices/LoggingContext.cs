@@ -6,23 +6,14 @@ using Webgostar.Framework.Infrastructure.InfrastructureModels.DbModels.Mongo;
 
 namespace Webgostar.Framework.Infrastructure.InfrastructureServices
 {
-    public class LoggingContext : ILoggingContext
+    public class LoggingContext(ILogService logService, IAuthService authService) : ILoggingContext
     {
-        private readonly ILogService _logService;
-        private readonly IAuthService _authService;
-        private readonly List<(string EntityName, OperationLogType Operation, object Data, long UserId)> _pendingLogs;
+        private readonly List<(string EntityName, OperationLogType Operation, object Data, long UserId)> _pendingLogs = new();
         private const int batchSize = 1000;
-
-        public LoggingContext(ILogService logService, IAuthService authService)
-        {
-            _logService = logService;
-            _authService = authService;
-            _pendingLogs = new List<(string, OperationLogType, object, long)>();
-        }
 
         public void AddLog(string entityName, OperationLogType operation, object data)
         {
-            _pendingLogs.Add((entityName, operation, data, _authService.GetUserId()));
+            _pendingLogs.Add((entityName, operation, data, authService.GetUserId()));
         }
 
         public async Task FlushLogsAsync()
@@ -42,7 +33,7 @@ namespace Webgostar.Framework.Infrastructure.InfrastructureServices
                             EntityData = ToBsonDocument(log.Data)
                         });
 
-                        await _logService.InsertManyAsync(logEntries);
+                        await logService.InsertManyAsync(logEntries);
                     }
                     _pendingLogs.Clear();
                 }
@@ -70,7 +61,7 @@ namespace Webgostar.Framework.Infrastructure.InfrastructureServices
                         EntityData = ToBsonDocument(log.Data)
                     });
 
-                    _logService.InsertMany(logEntries);
+                    logService.InsertMany(logEntries);
                 }
                 _pendingLogs.Clear();
             }

@@ -4,15 +4,9 @@ using Webgostar.Framework.Infrastructure.InfrastructureIServices;
 
 namespace Webgostar.Framework.Infrastructure.BaseServices.DIContainer
 {
-    public class RepositoryServices : IRepositoryServices
+    public class RepositoryServices(IAuthService authService, ILoggingContext loggingContext) : IRepositoryServices
     {
-        public IAuthService AuthService { get; }
-        public ILoggingContext LoggingContext { get; }
-
-        public RepositoryServices(IAuthService authService, ILoggingContext loggingContext)
-        {
-            AuthService = authService;
-            LoggingContext = loggingContext;
-        }
+        public IAuthService AuthService { get; } = authService;
+        public ILoggingContext LoggingContext { get; } = loggingContext;
     }
 }

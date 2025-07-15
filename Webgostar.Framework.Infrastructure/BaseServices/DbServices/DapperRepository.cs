@@ -9,17 +9,12 @@ using Webgostar.Framework.Infrastructure.Contexts;
 
 namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
 {
-    public class DapperRepository<TEntity> : IDapperRepository<TEntity> where TEntity : BaseEntity
+    public class DapperRepository<TEntity>(IDbConnection dbConnection, EfBaseContext context)
+        : IDapperRepository<TEntity>
+        where TEntity : BaseEntity
     {
-        private readonly IDbConnection _dbConnection;
-        private readonly string _tableName;
-
-        public DapperRepository(IDbConnection dbConnection, EfBaseContext context)
-        {
-            _dbConnection = dbConnection;
-            _tableName = context.Model.FindEntityType(typeof(TEntity))?.GetTableName()
-                ?? throw new InvalidOperationException($"Table name for {typeof(TEntity).Name} not found.");
-        }
+        private readonly string _tableName = context.Model.FindEntityType(typeof(TEntity))?.GetTableName()
+                                             ?? throw new InvalidOperationException($"Table name for {typeof(TEntity).Name} not found.");
 
         private static string EscapeTableName(string tableName)
         {
@@ -123,14 +118,14 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
 
         private void EnsureConnectionOpen()
         {
-            if (_dbConnection.State != ConnectionState.Open)
-                _dbConnection.Open();
+            if (dbConnection.State != ConnectionState.Open)
+                dbConnection.Open();
         }
 
         private void CloseConnection()
         {
-            if (_dbConnection.State == ConnectionState.Open)
-                _dbConnection.Close();
+            if (dbConnection.State == ConnectionState.Open)
+                dbConnection.Close();
         }
 
 
@@ -139,7 +134,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
             try
             {
                 EnsureConnectionOpen();
-                var result = await _dbConnection.QueryAsync<TEntity>($"SELECT * FROM {EscapeTableName(_tableName)}");
+                var result = await dbConnection.QueryAsync<TEntity>($"SELECT * FROM {EscapeTableName(_tableName)}");
 
                 return result;
             }
@@ -162,7 +157,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
 
                 var sql = $"SELECT * FROM {EscapeTableName(_tableName)} ORDER BY {EscapeTableName(orderBy)} OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
                 EnsureConnectionOpen();
-                return await _dbConnection.QueryAsync<TEntity>(sql, new { Offset = (page - 1) * pageSize, PageSize = pageSize });
+                return await dbConnection.QueryAsync<TEntity>(sql, new { Offset = (page - 1) * pageSize, PageSize = pageSize });
             }
             catch (Exception ex)
             {
@@ -179,7 +174,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
             try
             {
                 EnsureConnectionOpen();
-                return await _dbConnection.QueryFirstOrDefaultAsync<TEntity>($"SELECT * FROM {EscapeTableName(_tableName)} WHERE Id = @Id", new { Id = id });
+                return await dbConnection.QueryFirstOrDefaultAsync<TEntity>($"SELECT * FROM {EscapeTableName(_tableName)} WHERE Id = @Id", new { Id = id });
             }
             catch (Exception ex)
             {
@@ -199,7 +194,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
                 var sql = $"SELECT * FROM {EscapeTableName(_tableName)} WHERE {sqlWhere}";
 
                 EnsureConnectionOpen();
-                return await _dbConnection.QueryAsync<TEntity>(sql, parameters);
+                return await dbConnection.QueryAsync<TEntity>(sql, parameters);
             }
             catch (Exception ex)
             {
@@ -216,7 +211,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
             try
             {
                 EnsureConnectionOpen();
-                return await _dbConnection.ExecuteAsync(sql, parameters);
+                return await dbConnection.ExecuteAsync(sql, parameters);
             }
             catch (Exception ex)
             {
@@ -233,7 +228,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
             try
             {
                 EnsureConnectionOpen();
-                return await _dbConnection.QueryAsync<T>($"SELECT * FROM {EscapeTableName(_tableName)} {joinSql}", parameters);
+                return await dbConnection.QueryAsync<T>($"SELECT * FROM {EscapeTableName(_tableName)} {joinSql}", parameters);
             }
             catch (Exception ex)
             {
@@ -250,7 +245,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
             try
             {
                 EnsureConnectionOpen();
-                return await _dbConnection.QueryAsync<T>(
+                return await dbConnection.QueryAsync<T>(
                     procedureName,
                     parameters,
                     commandType: CommandType.StoredProcedure);
@@ -270,7 +265,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
             try
             {
                 EnsureConnectionOpen();
-                return await _dbConnection.QueryFirstOrDefaultAsync<T>(
+                return await dbConnection.QueryFirstOrDefaultAsync<T>(
                     procedureName,
                     parameters,
                     commandType: CommandType.StoredProcedure);
@@ -290,7 +285,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
             try
             {
                 EnsureConnectionOpen();
-                return await _dbConnection.ExecuteAsync(
+                return await dbConnection.ExecuteAsync(
                     procedureName,
                     parameters,
                     commandType: CommandType.StoredProcedure);
@@ -317,7 +312,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices.DbServices
                 }
 
                 EnsureConnectionOpen();
-                var result = await _dbConnection.QueryFirstOrDefaultAsync<T>(procedureName, parameters, commandType: CommandType.StoredProcedure);
+                var result = await dbConnection.QueryFirstOrDefaultAsync<T>(procedureName, parameters, commandType: CommandType.StoredProcedure);
 
                 var outputValues = new Dictionary<string, object>();
                 foreach (var param in outputParams)

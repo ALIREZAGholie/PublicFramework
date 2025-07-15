@@ -9,22 +9,14 @@ using Webgostar.Framework.Infrastructure.InfrastructureIServices;
 
 namespace Webgostar.Framework.Infrastructure.BaseServices;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWork(EfBaseContext dbContext, IRepositoryServices repositoryServices, ILoggingContext loggingContext)
+    : IUnitOfWork
 {
-    private readonly IRepositoryServices _repositoryServices;
-    private readonly ILoggingContext _loggingContext;
-    private readonly EfBaseContext _context;
+    private readonly EfBaseContext _context = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 
     private readonly Dictionary<Type, object> _repositories = new();
     private IDbContextTransaction? _transaction;
     private bool _disposed;
-
-    public UnitOfWork(EfBaseContext dbContext, IRepositoryServices repositoryServices, ILoggingContext loggingContext)
-    {
-        _context = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _repositoryServices = repositoryServices;
-        _loggingContext = loggingContext;
-    }
 
     public IBaseRepository<TEntity> GetRepository<TEntity>() where TEntity : BaseEntity
     {
@@ -32,7 +24,7 @@ public class UnitOfWork : IUnitOfWork
 
         if (!_repositories.ContainsKey(type))
         {
-            _repositories[type] = new BaseRepository<TEntity>(_context, _repositoryServices);
+            _repositories[type] = new BaseRepository<TEntity>(_context, repositoryServices);
         }
 
         return (IBaseRepository<TEntity>)_repositories[type];
@@ -42,7 +34,7 @@ public class UnitOfWork : IUnitOfWork
     {
         var result = _context.SaveChanges();
 
-        _loggingContext.FlushLogs();
+        loggingContext.FlushLogs();
 
         return result;
     }
@@ -51,7 +43,7 @@ public class UnitOfWork : IUnitOfWork
     {
         var result = await _context.SaveChangesAsync(token);
 
-        await _loggingContext.FlushLogsAsync();
+        await loggingContext.FlushLogsAsync();
 
         return result;
     }
@@ -87,7 +79,7 @@ public class UnitOfWork : IUnitOfWork
         {
             _context.SaveChanges();
             _transaction.Commit();
-            _loggingContext.FlushLogs();
+            loggingContext.FlushLogs();
         }
         finally
         {
@@ -103,7 +95,7 @@ public class UnitOfWork : IUnitOfWork
         {
             await _context.SaveChangesAsync(token);
             await _transaction.CommitAsync(token);
-            await _loggingContext.FlushLogsAsync();
+            await loggingContext.FlushLogsAsync();
         }
         finally
         {
@@ -136,7 +128,7 @@ public class UnitOfWork : IUnitOfWork
             action();
             await _context.SaveChangesAsync(token);
             await transaction.CommitAsync(token);
-            await _loggingContext.FlushLogsAsync();
+            await loggingContext.FlushLogsAsync();
         }
         catch (Exception ex)
         {
@@ -153,7 +145,7 @@ public class UnitOfWork : IUnitOfWork
             await action();
             await _context.SaveChangesAsync(token);
             await transaction.CommitAsync(token);
-            await _loggingContext.FlushLogsAsync();
+            await loggingContext.FlushLogsAsync();
         }
         catch (Exception ex)
         {

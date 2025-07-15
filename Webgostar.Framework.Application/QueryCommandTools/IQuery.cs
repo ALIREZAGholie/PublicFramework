@@ -6,12 +6,8 @@ namespace Webgostar.Framework.Application.QueryCommandTools;
 
 public interface IQuery<out TResponse> : IRequest<TResponse>;
 
-public class QueryGrid<TResponse> : IRequest<GridData<TResponse>> where TResponse : BaseDto
+public class QueryGrid<TResponse>(BaseGrid baseGrid) : IRequest<GridData<TResponse>>
+    where TResponse : BaseDto
 {
-    public QueryGrid(BaseGrid baseGrid)
-    {
-        BaseGrid = baseGrid;
-    }
-
-    public BaseGrid BaseGrid { get; private set; }
+    public BaseGrid BaseGrid { get; private set; } = baseGrid;
 }

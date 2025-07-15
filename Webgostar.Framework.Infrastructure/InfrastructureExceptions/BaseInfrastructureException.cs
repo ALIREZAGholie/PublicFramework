@@ -2,10 +2,4 @@
 
 namespace Webgostar.Framework.Infrastructure.InfrastructureExceptions;
 
-public abstract class BaseInfrastructureException : BaseWebGostarException
-{
-    protected BaseInfrastructureException(string message) : base(message)
-    {
-
-    }
-}
+public abstract class BaseInfrastructureException(string message) : BaseWebGostarException(message);

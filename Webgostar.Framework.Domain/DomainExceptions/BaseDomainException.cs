@@ -2,9 +2,4 @@
 
 namespace Webgostar.Framework.Domain.DomainExceptions;
 
-public abstract class BaseDomainException : BaseWebGostarException
-{
-    protected BaseDomainException(string message) : base(message)
-    {
-    }
-}
+public abstract class BaseDomainException(string message) : BaseWebGostarException(message);

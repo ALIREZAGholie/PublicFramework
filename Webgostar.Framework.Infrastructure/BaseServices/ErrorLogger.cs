@@ -7,15 +7,8 @@ using Webgostar.Framework.Base.IBaseServices;
 
 namespace Webgostar.Framework.Infrastructure.BaseServices
 {
-    public class ErrorLogger : IErrorLogger
+    public class ErrorLogger(IWebHostEnvironment environment) : IErrorLogger
     {
-        private readonly IWebHostEnvironment _environment;
-
-        public ErrorLogger(IWebHostEnvironment environment)
-        {
-            _environment = environment;
-        }
-
         async Task<bool> IErrorLogger.LogError(Exception error, object? data)
         {
             try
@@ -65,7 +58,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
         {
             try
             {
-                var path = _environment.ContentRootPath;
+                var path = environment.ContentRootPath;
 
                 path = Path.Combine(path, "Errors", $"{dateTime.Year.ToString()}.{dateTime.Month.ToString()}.{dateTime.Day.ToString()}");
 

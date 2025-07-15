@@ -12,22 +12,14 @@ using Webgostar.Framework.Infrastructure.InfrastructureExceptions;
 
 namespace Webgostar.Framework.Infrastructure.BaseServices
 {
-    public class AuthService : IAuthService
+    public class AuthService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+        : IAuthService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IConfiguration _configuration;
-
-        public AuthService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
-        {
-            _httpContextAccessor = httpContextAccessor;
-            _configuration = configuration;
-        }
-
         public long GetUserId()
         {
             try
             {
-                var userId = _httpContextAccessor.HttpContext?.User?.Claims.First(a => a.Type == "Id").Value ?? "0";
+                var userId = httpContextAccessor.HttpContext?.User?.Claims.First(a => a.Type == "Id").Value ?? "0";
                 return long.Parse(userId);
             }
             catch (Exception)
@@ -72,9 +64,9 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
         {
             try
             {
-                if (_httpContextAccessor.HttpContext != null)
+                if (httpContextAccessor.HttpContext != null)
                 {
-                    string token = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.Authorization];
+                    string token = httpContextAccessor.HttpContext.Request.Headers[HeaderNames.Authorization];
 
                     token = token != null ? token.Replace("Bearer ", "") : "";
 
@@ -93,7 +85,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
         {
             try
             {
-                var roleIdFirst = _httpContextAccessor.HttpContext.Request.Headers["RoleId"].First() ?? "0";
+                var roleIdFirst = httpContextAccessor.HttpContext.Request.Headers["RoleId"].First() ?? "0";
 
                 var roleId = long.Parse(roleIdFirst);
 
@@ -111,7 +103,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
         {
             try
             {
-                var roleFirst = _httpContextAccessor.HttpContext.Request.Headers["RoleGuid"].FirstOrDefault();
+                var roleFirst = httpContextAccessor.HttpContext.Request.Headers["RoleGuid"].FirstOrDefault();
 
                 var roleGuid = Guid.Parse(roleFirst);
 
@@ -146,7 +138,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
         {
             try
             {
-                var rolesStr = _httpContextAccessor.HttpContext.User.Claims
+                var rolesStr = httpContextAccessor.HttpContext.User.Claims
                     .FirstOrDefault(a => a.Type == "RolesId").Value;
 
                 var roles = JsonConvert.DeserializeObject<List<RoleAuthService>>(rolesStr);
@@ -214,7 +206,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
 
             if (string.IsNullOrEmpty(accessToken)) return null;
 
-            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_configuration["JwtConfig:SignInKey"] ?? string.Empty));
+            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(configuration["JwtConfig:SignInKey"] ?? string.Empty));
             JwtSecurityTokenHandler tokenHandler = new();
 
             TokenValidationParameters validationParameters = new()
@@ -223,8 +215,8 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = _configuration["JwtConfig:Issuer"],
-                ValidAudience = _configuration["JwtConfig:Audience"],
+                ValidIssuer = configuration["JwtConfig:Issuer"],
+                ValidAudience = configuration["JwtConfig:Audience"],
                 IssuerSigningKey = securityKey
             };
 
@@ -248,7 +240,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
         public string GetIpAddress()
         {
             //var ip = _httpContextAccessor.HttpContext.Request.Headers["UserIpAddress"].ToString();
-            var ip = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            var ip = httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
 
             return ip;
         }

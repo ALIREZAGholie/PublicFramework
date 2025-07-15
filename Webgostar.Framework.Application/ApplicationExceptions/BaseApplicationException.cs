@@ -2,11 +2,5 @@
 
 namespace Webgostar.Framework.Application.ApplicationExceptions;
 
-public abstract class BaseApplicationException : BaseWebGostarException
-{
-    protected BaseApplicationException(string message) : base(message)
-    {
-
-    }
-}
+public abstract class BaseApplicationException(string message) : BaseWebGostarException(message);
 

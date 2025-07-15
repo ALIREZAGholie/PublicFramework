@@ -18,15 +18,8 @@ namespace Webgostar.Framework.Presentation.Web.Middlewares
         }
     }
 
-    public class ApiExceptionHandlerMiddleware
+    public class ApiExceptionHandlerMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-
-        public ApiExceptionHandlerMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
-
         public async Task Invoke(HttpContext context, IErrorLogger errorLogger)
         {
             string? message = null;
@@ -34,7 +27,7 @@ namespace Webgostar.Framework.Presentation.Web.Middlewares
 
             try
             {
-                await _next(context);
+                await next(context);
             }
             catch (BaseWebGostarException exception)
             {

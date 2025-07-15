@@ -2,13 +2,11 @@
 
 namespace Webgostar.Framework.Infrastructure.MediatR;
 
-public class CustomMediator : Mediator
+public class CustomMediator(
+    IServiceProvider serviceFactory,
+    Func<IEnumerable<NotificationHandlerExecutor>, INotification, CancellationToken, Task> publish)
+    : Mediator(serviceFactory)
 {
-    private readonly Func<IEnumerable<NotificationHandlerExecutor>, INotification, CancellationToken, Task> _publish;
-
-    public CustomMediator(IServiceProvider serviceFactory, Func<IEnumerable<NotificationHandlerExecutor>, INotification, CancellationToken, Task> publish) : base(serviceFactory)
-        => _publish = publish;
-
     protected override Task PublishCore(IEnumerable<NotificationHandlerExecutor> handlerExecutors, INotification notification, CancellationToken cancellationToken)
-        => _publish(handlerExecutors, notification, cancellationToken);
+        => publish(handlerExecutors, notification, cancellationToken);
 }

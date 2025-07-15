@@ -6,18 +6,12 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Webgostar.Framework.Presentation.Web.Utilites
 {
-    public class ConfigureSwaggerOptions : IConfigureNamedOptions<SwaggerGenOptions>
+    public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
+        : IConfigureNamedOptions<SwaggerGenOptions>
     {
-        private readonly IApiVersionDescriptionProvider _provider;
-
-        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider)
-        {
-            _provider = provider;
-        }
-
         public void Configure(SwaggerGenOptions options)
         {
-            foreach (ApiVersionDescription item in _provider.ApiVersionDescriptions)
+            foreach (ApiVersionDescription item in provider.ApiVersionDescriptions)
             {
                 options.SwaggerDoc(item.GroupName, CreateVersionInfo(item));
             }
@@ -32,7 +26,7 @@ namespace Webgostar.Framework.Presentation.Web.Utilites
         {
             OpenApiInfo info = new()
             {
-                Title = "TarazWebGostarCRM",
+                Title = "Taraz WebGostar Api",
                 Version = description.ApiVersion.ToString()
             };
 

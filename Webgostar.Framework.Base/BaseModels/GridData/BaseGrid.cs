@@ -2,14 +2,8 @@
 
 namespace Webgostar.Framework.Base.BaseModels.GridData;
 
-public class FilterParam
+public class FilterParam(string key, string value)
 {
-    public FilterParam(string Key, string Value)
-    {
-        this.Key = Key;
-        this.Value = Value;
-    }
-
     public void SetOperator(string @operator)
     {
         Operator = @operator;
@@ -26,8 +20,8 @@ public class FilterParam
         SearchExpression = searchExpression;
     }
 
-    public string Key { get; private set; }
-    public string Value { get; private set; }
+    public string Key { get; private set; } = key;
+    public string Value { get; private set; } = value;
     public string? Operator { get; private set; }
     public bool SearchExpression { get; private set; }
 }

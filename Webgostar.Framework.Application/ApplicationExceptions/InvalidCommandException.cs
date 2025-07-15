@@ -1,9 +1,4 @@
 ﻿namespace Webgostar.Framework.Application.ApplicationExceptions;
 
-public class InvalidCommandException : BaseApplicationException
-{
-    public InvalidCommandException(string message) : base(message)
-    {
-    }
-}
+public class InvalidCommandException(string message) : BaseApplicationException(message);
 

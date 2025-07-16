@@ -33,14 +33,14 @@ namespace Webgostar.Framework.Infrastructure.InfrastructureServices
                             EntityData = ToBsonDocument(log.Data)
                         });
 
-                        await logService.InsertManyAsync(logEntries);
+                        //await logService.InsertManyAsync(logEntries);
                     }
                     _pendingLogs.Clear();
                 }
             }
             catch (Exception)
             {
-                
+                // ignored
             }
         }
 
@@ -61,13 +61,13 @@ namespace Webgostar.Framework.Infrastructure.InfrastructureServices
                         EntityData = ToBsonDocument(log.Data)
                     });
 
-                    logService.InsertMany(logEntries);
+                    //logService.InsertMany(logEntries);
                 }
                 _pendingLogs.Clear();
             }
             catch (Exception)
             {
-                
+                // ignored
             }
         }
 

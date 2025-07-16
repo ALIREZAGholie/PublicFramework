@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using System.Globalization;
 using Webgostar.Framework.Presentation.Web.ControllerTools;
 using Webgostar.Framework.Presentation.Web.Utilites;
 
@@ -34,7 +36,7 @@ namespace Webgostar.Framework.Presentation.Web
             {
                 options.Preload = true;
                 options.IncludeSubDomains = true;
-                options.MaxAge = TimeSpan.FromDays(60);
+                options.MaxAge = TimeSpan.FromDays(7);
             });
 
             services.AddControllers(option => option.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true)
@@ -45,6 +47,20 @@ namespace Webgostar.Framework.Presentation.Web
                     option.InvalidModelStateResponseFactory = context =>
                         throw new Exception(ModelStateUtilites.GetModelStateErrors(context.ModelState));
                 });
+
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            var supportedCultures = new[] { "fa", "en", "ar", "tr" };
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture("fa");
+                options.SupportedCultures = supportedCultures.Select(c => new CultureInfo(c)).ToList();
+                options.SupportedUICultures = supportedCultures.Select(c => new CultureInfo(c)).ToList();
+
+                // زبان از هدر Accept-Language خوانده می‌شود
+                options.RequestCultureProviders = [new AcceptLanguageHeaderRequestCultureProvider()];
+            });
 
             return services;
         }

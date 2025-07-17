@@ -9,13 +9,9 @@ namespace Webgostar.Framework.Base.BaseModels
         public long Id { get; private set; }
         [Column(Order = 1)]
         public bool IsDelete { get; private set; }
-        [Column(Order = 2)]
-        public bool IsActive { get; private set; } = true;
         public Guid PublicId { get; private set; } = Guid.NewGuid();
-        public long CreateUserId { get; private set; }
+        public string CreateUserId { get; private set; }
         public DateTime CreatedDate { get; private set; }
-        public string? Description { get; private set; } = null;
-        public string? MetaData { get; private set; }
 
         public void SetId(long id)
         {
@@ -27,7 +23,7 @@ namespace Webgostar.Framework.Base.BaseModels
             PublicId = publicId;
         }
 
-        public void SetCreate(long createUserId)
+        public void SetCreate(string createUserId)
         {
             CreateUserId = createUserId;
             CreatedDate = DateTime.Now;
@@ -42,12 +38,5 @@ namespace Webgostar.Framework.Base.BaseModels
         {
             IsDelete = false;
         }
-
-        public void SetActive(bool isActive)
-        {
-            IsActive = isActive;
-        }
-
-
     }
 }

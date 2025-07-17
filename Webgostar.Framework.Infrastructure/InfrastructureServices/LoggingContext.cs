@@ -8,7 +8,7 @@ namespace Webgostar.Framework.Infrastructure.InfrastructureServices
 {
     public class LoggingContext(ILogService logService, IAuthService authService) : ILoggingContext
     {
-        private readonly List<(string EntityName, OperationLogType Operation, object Data, long UserId)> _pendingLogs = new();
+        private readonly List<(string EntityName, OperationLogType Operation, object Data, string UserId)> _pendingLogs = new();
         private const int batchSize = 1000;
 
         public void AddLog(string entityName, OperationLogType operation, object data)

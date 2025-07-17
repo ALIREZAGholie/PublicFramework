@@ -4,20 +4,17 @@ namespace Webgostar.Framework.Base.IBaseServices
 {
     public interface IAuthService
     {
-        long GetUserId();
+        string GetUserId();
         string GetUserFullName();
-        Guid? GetUserGuid();
         string GetUserToken();
-        long GetRoleId();
-        Guid GetRoleGuid();
-        List<Guid> GetRoles();
-        List<long> GetRolesLong();
+        string GetRoleId();
+        List<string> GetRoles();
         string GetRoleExpDate();
-        long GetExpDate();
-        long GetExpires();
+        DateTime? GetExpDate();
+        DateTime? GetExpires();
         List<Claim> GetClaims();
         string GetIpAddress();
-        void CheckRoleValidation(long RoleID);
-        void CheckRoleValidationByRoleGuid(Guid RoleGUID);
+        void CheckRoleValidation(string RoleID);
+        void CheckRoleValidationByRoleGuid(string RoleGUID);
     }
 }

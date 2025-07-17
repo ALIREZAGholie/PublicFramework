@@ -15,16 +15,16 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
     public class AuthService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         : IAuthService
     {
-        public long GetUserId()
+        public string GetUserId()
         {
             try
             {
                 var userId = httpContextAccessor.HttpContext?.User?.Claims.First(a => a.Type == "Id").Value ?? "0";
-                return long.Parse(userId);
+                return userId;
             }
             catch (Exception)
             {
-                return 0;
+                return "";
             }
         }
 
@@ -81,13 +81,11 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
             }
         }
 
-        public long GetRoleId()
+        public string GetRoleId()
         {
             try
             {
-                var roleIdFirst = httpContextAccessor.HttpContext.Request.Headers["RoleId"].First() ?? "0";
-
-                var roleId = long.Parse(roleIdFirst);
+                var roleId = httpContextAccessor.HttpContext.Request.Headers["RoleId"].First() ?? "0";
 
                 CheckRoleValidation(roleId);
 
@@ -95,46 +93,28 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
             }
             catch (Exception)
             {
-                return 0;
+                return "";
             }
         }
 
-        public Guid GetRoleGuid()
-        {
-            try
-            {
-                var roleFirst = httpContextAccessor.HttpContext.Request.Headers["RoleGuid"].FirstOrDefault();
-
-                var roleGuid = Guid.Parse(roleFirst);
-
-                CheckRoleValidationByRoleGuid(roleGuid);
-
-                return roleGuid;
-            }
-            catch (Exception)
-            {
-                return Guid.Empty;
-            }
-        }
-
-        public List<Guid> GetRoles()
+        public List<string> GetRoles()
         {
             try
             {
                 var Roles = getClaims()
                     .Where(a => a.Type == "Role")
-                    .Select(claim => Guid.Parse(claim.Value))
+                    .Select(claim => claim.Value)
                     .ToList();
 
                 return Roles;
             }
             catch (Exception)
             {
-                return new List<Guid>();
+                return new List<string>();
             }
         }
 
-        public List<long> GetRolesLong()
+        public List<string> GetRolesLong()
         {
             try
             {
@@ -158,31 +138,31 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
             return roleExpDate;
         }
 
-        public long GetExpDate()
+        public DateTime? GetExpDate()
         {
             try
             {
                 var expires = getClaims().FirstOrDefault(a => a.Type == "ExpireDate")!.Value;
 
-                return long.Parse(expires);
+                return DateTime.Parse(expires);
             }
             catch (Exception)
             {
-                return 0;
+                return null;
             }
         }
 
-        public long GetExpires()
+        public DateTime? GetExpires()
         {
             try
             {
                 var expires = GetClaims().FirstOrDefault(a => a.Type == "Expires")!.Value;
 
-                return long.Parse(expires);
+                return DateTime.Parse(expires);
             }
             catch (Exception)
             {
-                return 0;
+                return null;
             }
         }
 
@@ -245,7 +225,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
             return ip;
         }
 
-        public void CheckRoleValidation(long roleId)
+        public void CheckRoleValidation(string roleId)
         {
             try
             {
@@ -268,7 +248,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
             }
         }
 
-        public void CheckRoleValidationByRoleGuid(Guid RoleGUID)
+        public void CheckRoleValidationByRoleGuid(string roleId)
         {
             try
             {
@@ -277,7 +257,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
                 var jArray = JArray.Parse(roleExpDateJson);
 
                 var roleExpDate =
-                    jArray.FirstOrDefault(token => token["RoleGuid"].ToString() == RoleGUID.ToString());
+                    jArray.FirstOrDefault(token => token["Role"].ToString() == roleId.ToString());
 
                 var ExpDate = long.Parse(roleExpDate["ExpireDate"].ToString());
                 var NowDate = DateTime.Now.Ticks;
@@ -288,7 +268,7 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
                 }
 
                 var UserRoles = GetRoles();
-                var exist = UserRoles.Any(r => r == RoleGUID);
+                var exist = UserRoles.Any(r => r == roleId);
                 if (!exist)
                 {
                     throw new AuthException("نقش کاربر معتبر نیست");
@@ -307,7 +287,6 @@ namespace Webgostar.Framework.Infrastructure.BaseServices
 
     internal record RoleAuthService
     {
-        public long RoleId { get; set; }
-        public Guid RoleGuid { get; set; }
+        public string RoleId { get; set; }
     }
 }
